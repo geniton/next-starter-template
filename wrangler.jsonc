@@ -11,6 +11,13 @@
     "binding": "ASSETS",
     "directory": ".open-next/assets"
   },
+  "kv_namespaces": [
+    {
+      "binding": "GENITON_KV_CACHE",
+      "id": "cbd066ae1e8f4d1594c2b3baf573be04",
+      "preview_id": "c284a1d03d9a4c8abfcca655d93d9e9f"
+    }
+  ],
   "observability": {
     "enabled": true
   },

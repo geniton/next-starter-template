@@ -1,4 +1,60 @@
-export default function Home() {
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+
+interface Post {
+  id: number;
+  title: string;
+  body: string;
+  userId: number;
+}
+
+async function getPosts(): Promise<Post[]> {
+  const { env } = await getCloudflareContext({ async: true });
+  const cacheKey = 'posts:latest';
+  const cacheTTL = 60 * 5; // 5 minutos
+
+  try {
+    // Tenta buscar do cache KV primeiro
+    const cachedPosts = await env.GENITON_KV_CACHE.get(cacheKey);
+    
+    if (cachedPosts) {
+      console.log('📦 Posts encontrados no cache KV', cachedPosts);
+      return JSON.parse(cachedPosts);
+    }
+
+    console.log('🌐 Buscando posts da API...');
+    
+    // Se não estiver no cache, busca da API
+    const res = await fetch('https://jsonplaceholder.typicode.com/posts?_limit=6');
+    if (!res.ok) {
+      throw new Error('Failed to fetch posts');
+    }
+    
+    const posts: Post[] = await res.json();
+    
+    // Salva no cache KV com TTL
+    await env.GENITON_KV_CACHE.put(
+      cacheKey, 
+      JSON.stringify(posts),
+      { expirationTtl: cacheTTL }
+    );
+    
+    console.log('💾 Posts salvos no cache KV');
+    return posts;
+    
+  } catch (error) {
+    console.error('❌ Erro ao buscar posts:', error);
+    // Fallback: tenta buscar diretamente da API se o cache falhar
+    const res = await fetch('https://jsonplaceholder.typicode.com/posts?_limit=6');
+    if (!res.ok) {
+      throw new Error('Failed to fetch posts');
+    }
+    return res.json();
+  }
+}
+
+export default async function Home() {
+  const posts = await getPosts();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="container mx-auto px-6 py-12">
@@ -11,6 +67,29 @@ export default function Home() {
             Descubra uma nova maneira de experimentar a tecnologia com nossa plataforma inovadora
           </p>
         </header>
+
+        {/* Posts Section */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold text-gray-800 text-center mb-8">
+            Últimas Publicações
+          </h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {posts.map((post) => (
+              <article key={post.id} className="bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <h3 className="text-lg font-semibold text-gray-800 mb-3 line-clamp-2">
+                  {post.title}
+                </h3>
+                <p className="text-gray-600 text-sm line-clamp-3 leading-relaxed">
+                  {post.body}
+                </p>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="text-xs text-gray-500">Post #{post.id}</span>
+                  <span className="text-xs text-blue-600">Usuário {post.userId}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
 
         {/* Main Content */}
         <main className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
