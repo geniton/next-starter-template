@@ -37,6 +37,7 @@
   "private": true,
   "scripts": {
     "preinstall": "pnpm store prune",
+    "install:ci": "pnpm store prune && pnpm install --frozen-lockfile",
     "build": "next build",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts",
     "check": "npm run build && tsc",
