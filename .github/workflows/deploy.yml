@@ -30,8 +30,10 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
           
-      - name: Install dependencies
-        run: pnpm install
+      - name: Clear pnpm cache and install dependencies
+        run: |
+          pnpm store prune
+          pnpm install --frozen-lockfile
         
       - name: Build and Deploy
         env:
