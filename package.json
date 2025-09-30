@@ -36,6 +36,7 @@
   },
   "private": true,
   "scripts": {
+    "preinstall": "pnpm store prune || true",
     "build": "next build",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts",
     "check": "npm run build && tsc",
