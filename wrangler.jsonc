@@ -21,5 +21,16 @@
   "observability": {
     "enabled": true
   },
-  "upload_source_maps": true
+  "upload_source_maps": true,
+  "env": {
+    "staging": {
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          // The service should match the "name" of your worker
+          "service": "next-starter-template-staging"
+        }
+      ],
+    }
+  }
 }
