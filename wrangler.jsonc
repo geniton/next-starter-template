@@ -24,6 +24,7 @@
   "upload_source_maps": true,
   "env": {
     "staging": {
+      "name": "next-starter-template-staging",
       "services": [
         {
           "binding": "WORKER_SELF_REFERENCE",
